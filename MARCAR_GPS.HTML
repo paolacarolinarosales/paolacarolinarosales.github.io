@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">	
+		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+		<script type="text/javascript" class="init">
+
+			var gs_latitude = "0";
+			var gs_longitude = "0";
+		
+			
+			function uf_calcDistance(lat1, lon1, lat2, lon2) {
+			  const R = 6371000; // Radio de la Tierra en metros
+			  const dLat = (lat2 - lat1) * Math.PI / 180;
+			  const dLon = (lon2 - lon1) * Math.PI / 180;
+
+			  const a = 
+			    Math.sin(dLat/2) * Math.sin(dLat/2) +
+			    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+			    Math.sin(dLon/2) * Math.sin(dLon/2);
+
+			  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+			  return R * c; // Distancia en metros
+			}
+			
+			function uf_showPos(){
+			
+				var latDestino = -12.0955635; // OTASS
+				var lonDestino = -77.0235646;
+				const rango = 50; // Distancia en metros
+
+				//SOLO PARA PRUEBAS
+				//PRUEBA 1
+				// cambiar direccion destino para probar distancia cerca de mi ubicacion
+				//obtener valores de url google maps extraer desde !3d a 4d..!  ejemplo OTASS: 3d-12.0955635!4d-77.0235646
+				//latDestino = -12.0524603; // CERCA DE CASA
+				//lonDestino = -77.0971922;
+
+				//PRUEBA 2
+				// cambiar  mi ubicacion actual a una cerca de otass
+				//gs_latitude=-12.0958048
+				//gs_longitude=-77.0233109
+
+				
+				const distancia = uf_calcDistance(gs_latitude, gs_longitude, latDestino, lonDestino);
+
+				alert( "Pos Obtenida: " + gs_latitude  + " | " + gs_longitude );
+				
+				if (distancia <= rango) {
+				  alert( "El usuario está dentro de " + rango  + "m de la dirección. Se encuentra a " + distancia + "m");
+				} else {
+				  alert( "El usuario está fuera de rango de " + rango  + "m de la dirección. Se encuentra a " + distancia + "m");
+				}
+
+				
+				
+			};
+			
+			
+			function uf_checkGPS(){
+				navigator.geolocation.getCurrentPosition(uf_showMap, uf_manageError);
+			}
+
+			function uf_showMap(position){
+				
+				gs_latitude  = position.coords.latitude;
+				gs_longitude = position.coords.longitude;
+
+				$('#btnCheckReg').css('display', 'block');
+				
+			}
+				 
+
+			function uf_manageError(error){
+				$('#btnCheckReg').css('display', 'none');
+				
+				alert('Error: '+error.code+' '+error.message+ '\n\nPor favor compruebe que está conectado '+
+				'a internet y habilite la opción permitir compartir ubicación física (GPS)');
+
+				$('#btnCheckReg').css('display', 'block');
+			}
+
+			function uf_loadRecordMap(arg_lat, arg_lon){
+				var ls_params  = "scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,fullscreen=yes,left=100,width=300";
+				var ls_content = "https://www.google.com/maps/search/?api=1&query=" + arg_lat + "," + arg_lon + "&zoom=20";
+
+				window.open( ls_content, 'Geolocalización', ls_params);
+				
+			}
+						
+		</script>
+		
+	</head>
+	
+	
+	<body id="body" >
+		
+		<table >
+			<tr>
+				<td >
+					<br>
+					Al presionar el botón se registrará la fecha y hora de la red de la entidad.
+					 
+				</td>
+			</tr>
+			
+			<tr>
+				<td ><hr></td>
+			</tr>
+			<tr>
+				<td >
+				   	<button id="btnCheckReg" class="btn btn-outline-primary" onclick="uf_showPos();" style='display:none' >Marcar&nbsp;&nbsp;<i class="fa fa-id-badge" aria-hidden="true"></i></button>
+			    </td>
+			</tr>
+			<tr>
+				<td ><hr></td>
+			</tr>
+	
+			<tr>
+				<td>Marcaciones del día:</td>
+			</tr>
+			<tr>
+				<td >
+					<ul id="lstRecords">
+				    </ul>
+				</td>
+			</tr>
+		</table>
+		
+	</body>
+	
+	<script type="text/javascript">
+
+		$(document).ready(function() {
+
+			if ( confirm("Asegúrese de haber activado su GPS y/o haber brindado los permisos para compartir su ubicación.\n\nLuego, espere 10 segundos antes de continuar.") ){
+				uf_checkGPS();
+			}
+			
+		} );
+
+		//if( ls_prcCod=="0"){
+		//	uf_modalOpen02("text", "danger","Error!", ls_prcMsg);
+		//}
+	
+        
+    </script>
+	
+				
+</html>
